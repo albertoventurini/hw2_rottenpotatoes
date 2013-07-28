@@ -7,9 +7,11 @@ class MoviesController < ApplicationController
   end
 
   def index
-  
+  debugger
     session[:sort_by] = params[:sort_by] if params.has_key?(:sort_by)
     sort_by = session[:sort_by]
+    
+    @all_ratings = Movie.all_ratings
     
     if params.has_key?(:ratings)
       @checked_ratings = params[:ratings].keys
@@ -17,7 +19,7 @@ class MoviesController < ApplicationController
     elsif session.has_key?(:ratings)
       @checked_ratings = session[:ratings]
     else
-      @checked_ratings = []
+      @checked_ratings = @all_ratings
     end
     
     @movies = Movie.find_all_by_rating(@checked_ratings, :order => sort_by)
@@ -26,10 +28,7 @@ class MoviesController < ApplicationController
     if @table_class.has_key?(sort_by)
       @table_class[sort_by] = 'hilite'
     end
-    
-    
-    @all_ratings = Movie.all_ratings
-    
+
   end
 
   def new
