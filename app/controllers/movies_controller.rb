@@ -7,7 +7,6 @@ class MoviesController < ApplicationController
   end
 
   def index
-  debugger
     session[:sort_by] = params[:sort_by] if params.has_key?(:sort_by)
     sort_by = session[:sort_by]
     
