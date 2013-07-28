@@ -7,19 +7,48 @@ class MoviesController < ApplicationController
   end
 
   def index
-    session[:sort_by] = params[:sort_by] if params.has_key?(:sort_by)
-    sort_by = session[:sort_by]
-    
     @all_ratings = Movie.all_ratings
     
-    if params.has_key?(:ratings)
-      @checked_ratings = params[:ratings].keys
-      session[:ratings] = @checked_ratings
-    elsif session.has_key?(:ratings)
-      @checked_ratings = session[:ratings]
+    redirect = false
+    
+    
+    if params.has_key?(:sort_by)
+      session[:sort_by] = sort_by = params[:sort_by]
     else
-      @checked_ratings = @all_ratings
+      redirect = true
+      if session.has_key?(:sort_by)
+        params[:sort_by] = session[:sort_by]
+      else
+        params[:sort_by] = "title"
+      end
     end
+    
+    
+    if params.has_key?(:ratings)
+      session[:ratings] = params[:ratings]
+    else
+      redirect = true
+      if session.has_key?(:ratings)
+        params[:ratings] = session[:ratings]
+      else
+        ratings_array = @all_ratings.product(["1"]).flatten
+        params[:ratings] = Hash[*ratings_array]
+      end      
+    end
+    
+    
+
+
+    flash.keep
+    if redirect
+      redirect_to movies_path(params)
+    end
+ 
+ 
+    @checked_ratings = params[:ratings].keys
+
+    
+    
     
     @movies = Movie.find_all_by_rating(@checked_ratings, :order => sort_by)
     
@@ -27,7 +56,7 @@ class MoviesController < ApplicationController
     if @table_class.has_key?(sort_by)
       @table_class[sort_by] = 'hilite'
     end
-
+    
   end
 
   def new
